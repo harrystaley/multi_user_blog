@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="new-post">
+		<a class="new-post-link" href="/blog/newpost">new post</a>
+	</div>
+	{% for post in posts %}
+		{{ post.render() | safe}}
+		<br><br>
+		<a class="edit-link" href="/blog/editpost?post={{post.key().id()}}">Edit</a>
+		<a class="edit-link" href="/blog/delete?post={{post.key().id()}}">Delete</a>
+		
+	{% endfor %}
+
+{%  endblock %}
