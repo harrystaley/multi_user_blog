@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>new comment</h2>
+<form method="post" class="comment">
+	<div>New Comment for <a href="/blog/{{pkey.id()}}">{{subject}}</a></div>
+	<p>{{content}}</p>
+	<label>
+		<textarea name="comment"></textarea>
+		<input type="hidden" name="author" value="{{user.name}}">
+	</label>
+
+	<div class=error>{{error}}</div>
+	<input type="submit">
+</form>
+
+{% endblock %}
