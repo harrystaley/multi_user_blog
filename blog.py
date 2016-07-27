@@ -165,17 +165,6 @@ class NewPost(BlogHandler):
 			error = "Please fill in subject and content"
 			self.render("newpost.html", subject = subject, content = content, error=error)
 
-# class DeletePost(BlogHandler):
-# 	def get
-# 		#delete from db
-		
-# 		#delete = db.GqlQuery("delete * from Post)
-		
-# 	def get(self):
-# 		#posts = Post.all().order("-created")
-# 		posts = db.GqlQuery("select * from Post order by created desc limit 10")
-# 		self.render("front.html", posts = posts)
-		
 class EditPost(BlogHandler):
 	def get(self):
 		if self.user:
@@ -190,23 +179,45 @@ class EditPost(BlogHandler):
 		else:
 			self.redirect("/login")
 
+
 	def post(self):
 		if self.user:
 			post_id = self.request.get("post")
 			key = db.Key.from_path("Post", int(post_id), parent=blog_key())
-			post = key.get()
+			post = db.get(key)
 			subject = self.request.get("subject")
 			content = self.request.get("content")
 			if subject and content:
 				post.subject = subject
 				post.content = content
 				post.put()
-				self.redirect('/blog/%s' % str(p.key().id()))
+				self.redirect("/blog/%s" % str(post.key().id()))
 			else:
 				error = "Please fill in both a subject and content."
 				self.render("editpost.html", subject = sucject, content = content, error="error")
 		else:
 			self.redirect("/login")
+
+class DeletePost(BlogHandler):
+	def get(self):
+		if self.user:
+			post_id = self.request.get("post")
+			key = db.Key.from_path("Post", int(post_id), parent=blog_key())
+			post = db.get(key)
+			if not post:
+				self.error(404)
+				return 
+			self.render("deletepost.html", post = post)
+		else:
+			self.redirect("/login")
+
+	def post(self):
+		post_id = self.request.get("post")
+		key = db.Key.from_path("Post", int(post_id), parent=blog_key())
+		post = db.get(key)
+		#if post and post.author.username == self.user.username:
+		post.delete()
+		self.render("deletesuccess.html")
 
 
 ###Signup
@@ -307,6 +318,7 @@ app = webapp2.WSGIApplication([("/", MainPage),
 							 ("/blog/([0-9]+)", PostPage),
 							 ("/blog/newpost", NewPost),
 							 ("/blog/editpost", EditPost),
+							 ("/blog/delete", DeletePost),
 							 ("/signup", Register),
 							 ("/login", Login),
 							 ("/logout", Logout),
