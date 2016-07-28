@@ -123,6 +123,8 @@ class Post(db.Model):
 	created = db.DateTimeProperty(auto_now_add = True)
 	last_modified = db.DateTimeProperty(auto_now=True)
 	author = db.StringProperty(required = True)
+	likes = db.IntegerProperty(required = True)
+	liked_by = db.ListProperty(str)
 	
 
 	def render(self):
@@ -165,7 +167,7 @@ class NewPost(BlogHandler):
 		author = self.request.get("author")
 
 		if subject and content:
-			p = Post(parent = blog_key(), subject = subject, content = content, author=author)
+			p = Post(parent = blog_key(), subject = subject, content = content, author=author, likes=0, liked_by=[])
 			p.put() #store content into database
 			self.redirect("/blog/%s" % str(p.key().id()))
 		else:
@@ -290,8 +292,22 @@ class EditComment(BlogHandler):
 # 			comment.put()
 # 		self.redirect("/blog/%s" %)str(post_id))
 
+class LikePost(BlogHandler):
+	def get(self, post_id):
+		if not self.user:
+			self.redirect("/login")
+		else:
+			key = db.Key.from_path("Post", int(post_id), parent=blog_key())
+			post = db.get(key)
+			author = post.author
+			logged_user = self.user.name
 
-
+			if author == logged_user or logged_user in post.liked_by:
+				self.redirect("/error")
+			else:
+				post.liked_by.append(logged_user)
+				post.put()
+				self.redirect("/blog")
 
 ###Signup
 
@@ -392,6 +408,7 @@ app = webapp2.WSGIApplication([("/", MainPage),
 							 ("/blog/newpost", NewPost),
 							 ("/blog/editpost", EditPost),
 							 ("/blog/delete", DeletePost),
+							 ("/blog/([0-9]+)/like", LikePost),
 							 ("/signup", Register),
 							 ("/login", Login),
 							 ("/logout", Logout),

@@ -11,10 +11,17 @@
 				<a class="edit-link" href="/blog/editpost?post={{post.key().id()}}">Edit</a>		
 				<a class="edit-link" href="/blog/delete?post={{post.key().id()}}">Delete</a>
 			{% else %}
-				<a href="/blog">Go back</a>
-				<a href="/blog/{{post.key().id()}}/like">Like</a>
+				{# {% if not liked %}
+				<form method ="post" >
+					<button class="like" type="submit">👍 Like</button>
+				</form>
+				{% else %}
+				<form method ="post" action="?like=True">
+					<button class="like" type="submit">👎 Unlike</button>
+				</form>
+				{% endif %} #}
+				<a href="/blog">Like</a>
 			{% endif %}
-	
 		{% if user and post.comments %}
 		<div>
 			<span>{{post.comments.count()}} comments</span>
