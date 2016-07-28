@@ -14,9 +14,32 @@
 				<a href="/blog">Go back</a>
 				<a href="/blog/{{post.key().id()}}/like">Like</a>
 			{% endif %}
+	
+		{% if user and post.comments %}
+		<div>
+			<span>{{post.comments.count()}} comments</span>
+		</div>
+
+		<div class="post-comments">
+			<h2>Comments</h2>
+
+			{% for c in post.comments %}
+
+			<div class="comments">
+				<div class="comment-author">{{c.parent().name }} says:</div>
+				<p class="comment-content">{{c.comment}}</p>
+				{% if user.name == c.author %}
+				<a href="/blog/editcomment?post={{post.key().id()}}/{{c.key().id()}}">Edit comment</a>
+				<a href="/blog/deletecomment?post={{post.key().id()}}/{{c.key().id()}}">Delete comment</a>
+				{% endif %}
+			</div>
+			{% endfor %}
+
+			<a href="/blog/newcomment?post={{post.key().id()}}">add new comment</a>
+
+		</div>
+		{% endif %}
 	{% endfor %}
-	{# <div>
-		<span>{{post.comment.count()}} comments</span>
-	</div> #}
+	
 
 {%  endblock %}
