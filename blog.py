@@ -122,10 +122,16 @@ class Post(db.Model):
 	content = db.TextProperty(required = True)
 	created = db.DateTimeProperty(auto_now_add = True)
 	last_modified = db.DateTimeProperty(auto_now=True)
+	author = db.StringProperty(required = True)
+	
 
 	def render(self):
 		self._render_text = self.content.replace("\n", "<br>")
 		return render_str("post.html", p = self)
+
+	@property
+	def comments(self):
+		return Comment.all().filter("post = ", str(self.key().id()))
 
 class BlogFront(BlogHandler):
 	def get(self):
@@ -156,9 +162,10 @@ class NewPost(BlogHandler):
 			self.redirect("/blog")
 		subject = self.request.get("subject")
 		content = self.request.get("content")
+		author = self.request.get("author")
 
 		if subject and content:
-			p = Post(parent = blog_key(), subject = subject, content = content)
+			p = Post(parent = blog_key(), subject = subject, content = content, author=author)
 			p.put() #store content into database
 			self.redirect("/blog/%s" % str(p.key().id()))
 		else:
@@ -171,7 +178,8 @@ class EditPost(BlogHandler):
 			post_id = self.request.get("post")
 			key = db.Key.from_path("Post", int(post_id), parent=blog_key())
 			post = db.get(key)
-			#author = post.author
+			# author = post.author
+			# loggedUser = self.user.name
 			if not post:
 				self.error(404)
 				return 
@@ -218,73 +226,43 @@ class DeletePost(BlogHandler):
 		post.delete()
 		self.render("deletesuccess.html")
 
-# class Comment(db.Model):
-# 	comment = db.StringProperty(required=True)
-# 	post = db.StringProperty(required=True)
-# 	name = db.StringProperty(required=True)
+class Comment(db.Model):
+	comment = db.StringProperty(required=True)
+	post = db.StringProperty(required=True)
+	author = db.StringProperty(required=True)
 
-# 	@classmethod
-# 	def render(self):
-# 		self.render("comment.html")
+	@classmethod
+	def render(self):
+		self.render("comment.html")
+class NewComment(BlogHandler):
+	def get(self, post_id):
+		if not self.user:
+			self.redirect("/login")
+			return 
 
-# class NewComment(BlogHandler):
-# 	def get(self, post_id):
-# 		if not self.user:
-# 			self.redirect("/login")
-# 			return 
+		post = Post.get_by_id(int(post_id), parent=blog_key())
+		subject = post.subject
+		content = post.content
+		self.render("newcomment.html", subject=subject, content=content, pkey=post_key())
 
-# 		post = Post.get_by_id(int(post_id), parent=blog_key())
-# 		subject = post.subject
-# 		content = post.content
-# 		self.render("newcomment.html", subject=subject, content=content, pkey=post_key())
+	def post(self, post_id):
+		key = db.Key.from_path("Post", int(post_id), parent=blog_key())
+		post = db.get(key)
+		if not post:
+			self.error(404)
+			return
+		if not self.user:
+			self.redirect("login")
+		comment = self.request.get("comment")
 
-# 	def post(self, post_id):
-# 		key = db.Key.from_path("Post", int(post_id), parent=blog_key())
-# 		post = db.get(key)
-# 		if not post:
-# 			self.error(404)
-# 			return
-# 		if not self.user:
-# 			self.redirect("login")
-# 		comment = self.request.get("comment")
-
-# 		if comment:
-# 			suthor = self.request.get("author") # check how author was defined
-# 			c = Comment(comment=comment, post=post_id, parent=self.user.key(), author=author)
-# 			c.put()
-# 			self.redirect("/blog/%s" % str(post_id))
-# 		else:
-# 			error = "please comment"
-# 			self.render("permalink.html", post=post, content=content, error=error)
-
-# class EditComment(BlogHandler):
-# 	def get(self, post_id, comment_id):
-# 		post = Post.get_by_id(int(post_id), parent=blog_key())
-# 		comment = Comment.get_by_id(int(comment_id), parent=self.user.key())
-# 		if comment:
-# 			self.render("editcomment.html", subject=post.subject, content=post.content, comment=comment.comment)
-# 		else:
-# 			self.redirect("/commenterror")
-
-# 	def post(self, post_id, comment_id):
-# 		comment=Comment.get_by_id(int(comment_id), parent=self.user.key())
-# 		if comment.parent().key().id() == self.user.key().id():
-# 			comment.comment = self.request.get("comment")
-# 			comment.put()
-# 		self.redirect("/blog/%s"　% str(post_id))
-
-# class DeleteComment(BlogHandler):
-# 	def get(self, post_id, comment_id):
-# 		comment = Comment.get_by_id(int(comment_id), parent=self.user.key())
-# 	if comment:
-# 		comment.delete()
-# 		self.redirect("/blog/%s" % str(post_id))
-# 	else:
-# 		self.redirect("/commenterror")
-
-# class CommentError(BlogHandler):
-# 	def get(self):
-# 		self.write("Oops, something went wrong...")
+		if comment:
+			author = self.request.get("author") # check how author was defined
+			c = Comment(comment=comment, post=post_id, parent=self.user.key(), author=author)
+			c.put()
+			self.redirect("/blog/%s" % str(post_id))
+		else:
+			error = "please comment"
+			self.render("permalink.html", post=post, content=content, error=error)
 
 ###Signup
 
@@ -388,6 +366,7 @@ app = webapp2.WSGIApplication([("/", MainPage),
 							 ("/signup", Register),
 							 ("/login", Login),
 							 ("/logout", Logout),
+							 ("/blog/([0-9]+)/newcomment", NewComment),
 							 ("/unit3/welcome", Welcome),
 							 ],
 							 debug=True)

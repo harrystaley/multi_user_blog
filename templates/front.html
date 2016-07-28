@@ -7,9 +7,16 @@
 	{% for post in posts %}
 		{{ post.render() | safe}}
 		<br><br>
-		<a class="edit-link" href="/blog/editpost?post={{post.key().id()}}">Edit</a>
-		<a class="edit-link" href="/blog/delete?post={{post.key().id()}}">Delete</a>
-		
+			{% if user.name == post.author %}
+				<a class="edit-link" href="/blog/editpost?post={{post.key().id()}}">Edit</a>		
+				<a class="edit-link" href="/blog/delete?post={{post.key().id()}}">Delete</a>
+			{% else %}
+				<a href="/blog">Go back</a>
+				<a href="/blog/{{post.key().id()}}/like">Like</a>
+			{% endif %}
 	{% endfor %}
+	{# <div>
+		<span>{{post.comment.count()}} comments</span>
+	</div> #}
 
 {%  endblock %}
