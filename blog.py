@@ -269,14 +269,14 @@ class NewComment(BlogHandler):
 			self.render("permalink.html", post=post, content=content, error=error)
 
 class EditComment(BlogHandler):
-	def get(self):
+	def get(self, post_id, comment_id):
 		if self.user:
-			post_id = self.request.get("post")
-			comment_id = self.request.get("comment")
+			# post_id = self.request.get("post")
+			# comment_id = self.request.get("comment")
 			key = db.Key("comment", int(comment_id))
-			comment = db.get(key)
-			# post = Post.get_by_id(int(post_id), parent=blog_key())
-			# comment = Comment.get_by_id(int(comment_id), parent=self.user.key())	
+			# comment = db.get(key)
+			post = Post.get_by_id(int(post_id), parent=blog_key())
+			comment = Comment.get_by_id(int(comment_id), parent=self.user.key())	
 			if comment:
 				self.render("editcomment.html", subject=post.subject, content=post.content, comment=comment.post_id)
 			else:
@@ -305,6 +305,7 @@ class LikePost(BlogHandler):
 			if author == logged_user or logged_user in post.liked_by:
 				self.redirect("/error")
 			else:
+				post.likes +=1
 				post.liked_by.append(logged_user)
 				post.put()
 				self.redirect("/blog")
@@ -413,7 +414,8 @@ app = webapp2.WSGIApplication([("/", MainPage),
 							 ("/login", Login),
 							 ("/logout", Logout),
 							 ("/blog/newcomment", NewComment),
-							 ("/blog/editcomment?post=([0-9]+)/([0-9]+)", EditComment),
+							 # ("/blog/editcomment?post=([0-9]+)/([0-9]+)", EditComment),
+							 ("/blog/[post_id]/comment/[comment_id]", EditComment),
 							 ("/unit3/welcome", Welcome),
 							 ],
 							 debug=True)
