@@ -264,6 +264,7 @@ class NewComment(BlogHandler):
 			c = Comment(comment=comment, post=post_id, parent=self.user.key(), author=author)
 			c.put()
 			self.redirect("/blog/%s" % str(post_id))
+			
 		else:
 			error = "please comment"
 			self.render("permalink.html", post=post, content=content, error=error)
@@ -271,26 +272,30 @@ class NewComment(BlogHandler):
 class EditComment(BlogHandler):
 	def get(self, post_id, comment_id):
 		if self.user:
-			# post_id = self.request.get("post")
-			# comment_id = self.request.get("comment")
-			key = db.Key("comment", int(comment_id))
-			# comment = db.get(key)
+			
 			post = Post.get_by_id(int(post_id), parent=blog_key())
 			comment = Comment.get_by_id(int(comment_id), parent=self.user.key())	
 			if comment:
-				self.render("editcomment.html", subject=post.subject, content=post.content, comment=comment.post_id)
+				self.render("editcomment.html", subject=post.subject, content=post.content, comment=comment.comment)
 			else:
 				self.redirect("/commenterror")
 		else:
 			self.redirect("/login")
 		
 
-# 	def post(self, post_id, comment_id):
-# 		comment=Comment.get_by_id(int(comment_id), parent=self.user.key())
-# 		if comment.parent().key().id() == self.user.key().id():
-# 			comment.comment = self.request.get("comment")
-# 			comment.put()
-# 		self.redirect("/blog/%s" %)str(post_id))
+	def post(self, post_id, comment_id):
+		comment=Comment.get_by_id(int(comment_id), parent=self.user.key())
+		if comment.parent().key().id() == self.user.key().id():
+			comment_temp = self.request.get("comment")
+			if comment_temp:
+				comment.comment =comment_temp
+				comment.put()
+				self.redirect("/blog/%s" % str(post_id))
+			else:
+				error = "Please fill in comment."
+				self.render("editcomment.html", subject=post.subject, content=post.content, comment=comment.comment)
+		else:
+			self.redirect("/login")
 
 class LikePost(BlogHandler):
 	def get(self, post_id):
@@ -415,7 +420,7 @@ app = webapp2.WSGIApplication([("/", MainPage),
 							 ("/logout", Logout),
 							 ("/blog/newcomment", NewComment),
 							 # ("/blog/editcomment?post=([0-9]+)/([0-9]+)", EditComment),
-							 ("/blog/[post_id]/comment/[comment_id]", EditComment),
+							 ("/blog/([0-9]+)/comment/([0-9]+)", EditComment),
 							 ("/unit3/welcome", Welcome),
 							 ],
 							 debug=True)
