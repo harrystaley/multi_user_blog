@@ -314,6 +314,7 @@ class LikePost(BlogHandler):
 				post.liked_by.append(logged_user)
 				post.put()
 				self.redirect("/blog")
+	
 
 ###Signup
 

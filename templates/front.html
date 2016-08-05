@@ -11,16 +11,8 @@
 				<a class="edit-link" href="/blog/editpost?post={{post.key().id()}}">Edit</a>		
 				<a class="edit-link" href="/blog/delete?post={{post.key().id()}}">Delete</a>
 			{% else %}
-				{# {% if not liked %}
-				<form method ="post" >
-					<button class="like" type="submit">👍 Like</button>
-				</form>
-				{% else %}
-				<form method ="post" action="?like=True">
-					<button class="like" type="submit">👎 Unlike</button>
-				</form>
-				{% endif %} #}
-				<a href="/blog">Like</a>
+				<a href="/blog/{{post.key().id()}}/like">👍Like</a>
+				
 			{% endif %}
 		{% if user and post.comments %}
 		<div>
@@ -37,7 +29,7 @@
 				<p class="comment-content">{{c.comment}}</p>
 				{% if user.name == c.author %}
 				{# <a href="/blog/editcomment?post={{post.key().id()}}/{{c.key().id()}}">Edit comment</a> #}
-				<a href="/blog/{{post.key().id()}}/comment/{{c.key().id()}}">Edit comment</a>
+				<a href="x/blog/{{post.key().id()}}/comment/{{c.key().id()}}">Edit comment</a>
 				<a href="/blog/deletecomment?post={{post.key().id()}}/{{c.key().id()}}">Delete comment</a>
 				{% endif %}
 			</div>
