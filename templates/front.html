@@ -28,9 +28,8 @@
 				<div class="comment-author">{{c.parent().name }} says:</div>
 				<p class="comment-content">{{c.comment}}</p>
 				{% if user.name == c.author %}
-				{# <a href="/blog/editcomment?post={{post.key().id()}}/{{c.key().id()}}">Edit comment</a> #}
-				<a href="x/blog/{{post.key().id()}}/comment/{{c.key().id()}}">Edit comment</a>
-				<a href="/blog/deletecomment?post={{post.key().id()}}/{{c.key().id()}}">Delete comment</a>
+				<a href="/blog/{{post.key().id()}}/editcomment/{{c.key().id()}}">Edit comment</a>
+				<a href="/blog/{{post.key().id()}}/deletecomment/{{c.key().id()}}">Delete comment</a>
 				{% endif %}
 			</div>
 			{% endfor %}

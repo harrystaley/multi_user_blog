@@ -16,7 +16,6 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
 
 secret = "fart"
 
-
 def render_str(template, **params):
 	t = jinja_env.get_template(template)
 	return t.render(params)
@@ -272,7 +271,6 @@ class NewComment(BlogHandler):
 class EditComment(BlogHandler):
 	def get(self, post_id, comment_id):
 		if self.user:
-			
 			post = Post.get_by_id(int(post_id), parent=blog_key())
 			comment = Comment.get_by_id(int(comment_id), parent=self.user.key())	
 			if comment:
@@ -297,6 +295,15 @@ class EditComment(BlogHandler):
 		else:
 			self.redirect("/login")
 
+class DeleteComment(BlogHandler):
+	def get(self, post_id, comment_id):
+		comment = Comment.get_by_id(int(comment_id), parent=self.user.key())
+		if comment:
+			comment.delete()
+			self.redirect("/blog/%s" % str(post_id))
+		else:
+			self.write("Sorry, something went wrong..")
+
 class LikePost(BlogHandler):
 	def get(self, post_id):
 		if not self.user:
@@ -314,8 +321,6 @@ class LikePost(BlogHandler):
 				post.liked_by.append(logged_user)
 				post.put()
 				self.redirect("/blog")
-	
-
 ###Signup
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -420,8 +425,8 @@ app = webapp2.WSGIApplication([("/", MainPage),
 							 ("/login", Login),
 							 ("/logout", Logout),
 							 ("/blog/newcomment", NewComment),
-							 # ("/blog/editcomment?post=([0-9]+)/([0-9]+)", EditComment),
-							 ("/blog/([0-9]+)/comment/([0-9]+)", EditComment),
+							 ("/blog/([0-9]+)/editcomment/([0-9]+)", EditComment),
+							 ("/blog/([0-9]+)/deletecomment/([0-9]+)", DeleteComment),
 							 ("/unit3/welcome", Welcome),
 							 ],
 							 debug=True)
