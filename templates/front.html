@@ -2,14 +2,14 @@
 
 {% block content %}
 	<div class="new-post">
-		<a class="new-post-link" href="/blog/newpost">new post</a>
+		<a class="new-post-link btn btn-success" href="/blog/newpost">new post</a>
 	</div>
 	{% for post in posts %}
 		{{ post.render() | safe}}
 		<br><br>
 			{% if user.name == post.author %}
-				<a class="edit-link" href="/blog/editpost?post={{post.key().id()}}">Edit</a>		
-				<a class="edit-link" href="/blog/delete?post={{post.key().id()}}">Delete</a>
+				<a class="edit-link btn btn-primary" href="/blog/editpost?post={{post.key().id()}}">Edit</a>		
+				<a class="edit-link btn btn-primary" href="/blog/delete?post={{post.key().id()}}">Delete</a>
 			{% else %}
 				<a href="/blog/{{post.key().id()}}/like">👍Like</a>
 				
@@ -20,7 +20,7 @@
 		</div>
 
 		<div class="post-comments">
-			<h2>Comments</h2>
+			<h3 class="comment-title">Comments</h3>
 
 			{% for c in post.comments %}
 
@@ -28,13 +28,13 @@
 				<div class="comment-author">{{c.parent().name }} says:</div>
 				<p class="comment-content">{{c.comment}}</p>
 				{% if user.name == c.author %}
-				<a href="/blog/{{post.key().id()}}/editcomment/{{c.key().id()}}">Edit comment</a>
-				<a href="/blog/{{post.key().id()}}/deletecomment/{{c.key().id()}}">Delete comment</a>
+				<a href="/blog/{{post.key().id()}}/editcomment/{{c.key().id()}}" class="btn btn-default btn-xs">Edit comment</a>
+				<a href="/blog/{{post.key().id()}}/deletecomment/{{c.key().id()}}" class="btn btn-default btn-xs">Delete comment</a>
 				{% endif %}
 			</div>
 			{% endfor %}
 
-			<a href="/blog/newcomment?post={{post.key().id()}}">add new comment</a>
+			<a href="/blog/newcomment?post={{post.key().id()}}" class="btn btn-default btn-xs">add new comment</a>
 
 		</div>
 		{% endif %}

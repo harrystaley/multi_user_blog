@@ -288,7 +288,7 @@ class EditComment(BlogHandler):
 			if comment_temp:
 				comment.comment =comment_temp
 				comment.put()
-				self.redirect("/blog/%s" % str(post_id))
+				self.redirect("/blog/%s" % str(post_id)) # TODO: Should show an updated comment
 			else:
 				error = "Please fill in comment."
 				self.render("editcomment.html", subject=post.subject, content=post.content, comment=comment.comment)

@@ -103,4 +103,9 @@ input[type=submit] {
     margin-top: 5px;
 }
 
+.comment-title{
+    font-size: 20px;
+    font-weight: bold;
+}
+
 
