@@ -282,6 +282,7 @@ class DeletePost(BlogHandler):
                 post.delete()
                 self.render("deletesuccess.html")
         else:
+            self.redirect("/login")
 
 
 class NewComment(BlogHandler):
@@ -372,17 +373,17 @@ class EditComment(BlogHandler):
 
 
 class DeleteComment(BlogHandler):
-    if comment and comment.author.username == self.user.username:
         def get(self, post_id, comment_id):
-            comment = Comment.get_by_id(
-                int(comment_id), parent=self.user.key())
-            if comment:
-                comment.delete()
-                self.redirect("/blog/%s" % str(post_id))
+            if self.user:
+                comment = Comment.get_by_id(
+                    int(comment_id), parent=self.user.key())
+                if comment and comment.author.username == self.user.username:
+                    comment.delete()
+                    self.redirect("/blog/%s" % str(post_id))
+                else:
+                    self.write("Sorry, something went wrong..")
             else:
-                self.write("Sorry, something went wrong..")
-    else:
-        self.redirect("/login")
+                self.redirect("/login")
 
 
 class LikePost(BlogHandler):
