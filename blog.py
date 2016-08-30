@@ -71,13 +71,6 @@ def render_post(response, post):
     response.out.write("<b>" + post.subject + "</b><br>")
     response.out.write(post.content)
 
-
-class MainPage(BlogHandler):
-
-    def get(self):
-        self.write("Hello")
-
-
 def make_salt(length=5):
     return "".join(random.choice(letters) for x in xrange(length))
 
@@ -234,10 +227,10 @@ class EditPost(BlogHandler):
                 subject=post.subject,
                 content=post.content)
         else:
-            self.redirect("/login")
+            self.redirect("/error")
 
     def post(self):
-        if post and post.author.username == self.user.username:
+        if self.user:
             post_id = self.request.get("post")
             key = db.Key.from_path("Post", int(post_id), parent=blog_key())
             post = db.get(key)
