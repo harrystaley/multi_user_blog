@@ -213,10 +213,15 @@ class NewPost(BlogHandler):
 class EditPost(BlogHandler):
 
     def get(self):
-        if self.user:
-            post_id = self.request.get("post")
-            key = db.Key.from_path("Post", int(post_id), parent=blog_key())
-            post = db.get(key)
+        # if author.username == self.user.username:
+        post_id = self.request.get("post")
+        key = db.Key.from_path("Post", int(post_id), parent=blog_key())
+        post = db.get(key)
+        author = post.author
+        logged_user = self.user
+        if author == logged_user:
+            
+
             # author = post.author
             # loggedUser = self.user.name
             if not post:
@@ -417,6 +422,8 @@ EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 def valid_email(email):
     return not email or EMAIL_RE.match(email)
 
+
+# The below is authentication class and methods
 
 class Signup(BlogHandler):
 
