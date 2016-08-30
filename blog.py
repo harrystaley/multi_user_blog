@@ -213,13 +213,10 @@ class NewPost(BlogHandler):
 class EditPost(BlogHandler):
 
     def get(self):
-        # if author.username == self.user.username:
         post_id = self.request.get("post")
         key = db.Key.from_path("Post", int(post_id), parent=blog_key())
         post = db.get(key)
-        author = post.author
-        logged_user = self.user
-        if author == logged_user:
+        if self.user == post.author:
             
 
             # author = post.author
